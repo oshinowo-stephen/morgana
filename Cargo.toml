@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "binder-server",
+  "binder-entities",
+  "binder-utils",
+  "binder-fm",
+]
