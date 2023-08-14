@@ -9,6 +9,7 @@ edition = "2021"
 serde = "1.0.171"
 dotenvy = "0.15.7"
 binder-utils = { path = "../binder-utils" }
+libsqlite3-sys = { version = "*", features = ["bundled"] }
 
 [dependencies.diesel]
 version = "2.1.0"

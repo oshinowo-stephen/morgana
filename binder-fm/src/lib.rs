@@ -87,6 +87,24 @@ pub mod local {
     Ok(())
   }
 
+  pub fn fetch_all_files(conn: Connection) -> Result<Vec<Box<Path>>> {
+    if let Ok(mut connection) = conn.get() {
+      let mut file_paths: Vec<Box<Path>> = Vec::new();
+
+      for entry in file_entry::fetch_file_entries(&mut connection) {
+        file_paths.push(Path::new(&entry.entry_path).into())
+      }
+
+      Ok(file_paths)
+    } else {
+      Err(IoError {
+        message: String::from("failed to fetch files"),
+        cause: String::from("cannot fetch connection."),
+        code: 500
+      })
+    }
+  }
+
   pub fn fetch_file(conn: Connection, file_name: String) -> Result<Box<Path>> {
     if let Ok(mut connection) = conn.get() {
       if let Some(entry) = file_entry::fetch_file_entry(file_name, &mut connection) {
@@ -115,7 +133,6 @@ pub mod local {
     if let Ok(mut connection) = conn.get() {
       if let Ok(_) = fs::remove_file(target) {
         let file_name = file_path.file_name().unwrap().to_str().unwrap();
-        dbg!(&file_name);
         file_entry::remove_file_entry(file_name.to_string(), &mut connection);
       }
     }

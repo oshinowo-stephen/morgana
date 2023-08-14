@@ -1,15 +1,25 @@
-FROM rust:1-alpine
+FROM rust:1-buster AS docker_builder
 
-WORKDIR /usr/apps/binder-server
+WORKDIR /usr/binder/build
 
-ENV BINDER_ADDRESS=${BINDER_ADDRESS}
+COPY Cargo.toml ./
+COPY binder-entities ./binder-entities
+COPY binder-server ./binder-server
+COPY binder-utils ./binder-utils
+COPY binder-fm ./binder-fm
+
+# Default arguments
+ARG MAIN_CONTAINER_PATH="bin"
+
+ENV MAIN_CONTAINER_PATH=$MAIN_CONTAINER_PATH
+
 ENV DATABASE_URL=${DATABASE_URL}
+ENV BINDER_ADDRESS=${BINDER_ADDRESS}
 ENV MAIN_CONTAINER_LIMIT=${MAIN_CONTAINER_LIMIT}
-ENV MAIN_CONTAINER_PATH=${MAIN_CONTAINER_PATH}
 ENV BINDER_STORAGE_TOKEN=${BINDER_STORAGE_TOKEN}
-ENV BINDER_UPLOAD_LIMIT=${BINDER_UPLOAD_LIMIT}
 ENV RUST_ENV="production"
 
-COPY target/release/ target/
+RUN mkdir -p ${MAIN_CONTAINER_PATH}
+RUN cargo build --release
 
-CMD [ "./target/binder-server" ]
+CMD target/release/binder-server
